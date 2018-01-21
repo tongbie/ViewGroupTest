@@ -24,7 +24,7 @@ import android.widget.TextView;
 
 public class RightSlip extends FrameLayout {
     private Context context;
-    private Activity activity;
+    private Activity activity=new Activity();
     private ViewGroup viewGroup;
     private View view;
     private Paint paint = new Paint();
@@ -33,21 +33,15 @@ public class RightSlip extends FrameLayout {
     private final int SLIPLEFT = 0x000;
     private final int SLIPRIGHT = 0x001;
 
-    public RightSlip(Context context) {
-        super(context);
-        this.context = context;
+    public RightSlip(Activity activity) {
+        super(activity);
+        this.activity=activity;
         this.setBackgroundColor(getResources().getColor(R.color.translucent_background));
-        init();
+        viewGroup = (ViewGroup) activity.getWindow().getDecorView();//获取最顶层View
+        view = viewGroup.getChildAt(0);//获取根LinearLayout
+        this.setOnTouchListener(new OnClick());
     }
 
-    private void init() {
-        {//变量
-            activity = (Activity) context;//拷贝Activity对象
-            viewGroup = (ViewGroup) activity.getWindow().getDecorView();//获取最顶层View
-            view = viewGroup.getChildAt(0);//获取根LinearLayout
-        }
-        viewGroup.setOnTouchListener(new OnClick());
-    }
 
     /* 触摸事件 */
     class OnClick implements OnTouchListener {
@@ -78,7 +72,7 @@ public class RightSlip extends FrameLayout {
                     }
             }
             invalidate();
-            return false;
+            return true;
         }
     }
 
@@ -130,7 +124,6 @@ public class RightSlip extends FrameLayout {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-//        canvas.save();
         Shader shader = new LinearGradient(currentX - ToolClass.dp(12), 0, currentX, 0,
                 new int[]{Color.parseColor("#00666666"),
                         Color.parseColor("#22666666"),
@@ -140,7 +133,6 @@ public class RightSlip extends FrameLayout {
         paint.setShader(shader);
         RectF rectF = new RectF(currentX - ToolClass.dp(10), 0, currentX, ToolClass.SCREEN_HEIGHT);
         canvas.drawRect(rectF, paint);
-//        canvas.restore();
     }
 }
 
