@@ -22,8 +22,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void start(){
-        Bitmap bitmap = getWindow().getDecorView().getRootView().getDrawingCache();
-        Intent intent=new Intent(MainActivity.this,Main2Activity.class);
+        Intent intent=new Intent(MainActivity.this,TestActivity.class);
         startActivity(intent);
     }
 }

@@ -24,6 +24,4 @@ public class ToolClass {
         float scale = context.getResources().getDisplayMetrics().density;
         return px*scale+0.5f;
     }
-
-
 }

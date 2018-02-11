@@ -11,6 +11,7 @@ import android.graphics.Shader;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.ViewDragHelper;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,15 +24,16 @@ import android.widget.TextView;
  */
 
 public class RightSlip extends FrameLayout {
-    private Context context;
     private Activity activity=new Activity();
     private ViewGroup viewGroup;
     private View view;
     private Paint paint = new Paint();
-    private int currentX;
-    private boolean isSlide = false;
+    private int currentX;//当前横坐标
+    private boolean isSlide = false;//判断是否允许滑动
     private final int SLIPLEFT = 0x000;
     private final int SLIPRIGHT = 0x001;
+    public static int SCREEN_WIDTH;
+    public static int SCREEN_HEIGHT;
 
     public RightSlip(Activity activity) {
         super(activity);
@@ -40,8 +42,10 @@ public class RightSlip extends FrameLayout {
         viewGroup = (ViewGroup) activity.getWindow().getDecorView();//获取最顶层View
         view = viewGroup.getChildAt(0);//获取根LinearLayout
         this.setOnTouchListener(new OnClick());
+        DisplayMetrics displayMetrics =getContext().getResources().getDisplayMetrics();
+        SCREEN_WIDTH=displayMetrics.widthPixels;
+        SCREEN_HEIGHT=displayMetrics.heightPixels;
     }
-
 
     /* 触摸事件 */
     class OnClick implements OnTouchListener {
@@ -51,7 +55,7 @@ public class RightSlip extends FrameLayout {
             switch (eventAction) {
                 case MotionEvent.ACTION_DOWN:
                     currentX = (int) event.getX();
-                    if (currentX > ToolClass.dp(16)) {
+                    if (currentX > dp(16)) {
                         currentX = 0;
                         break;
                     } else {
@@ -60,12 +64,15 @@ public class RightSlip extends FrameLayout {
                     break;
                 case MotionEvent.ACTION_MOVE:
                     if (isSlide == true) {
+                        int x=currentX;
                         currentX = (int) event.getX();
                         view.setTranslationX(currentX);
+//                        scrollBy(x-currentX,0);
+//                        scrollTo(-currentX,0);
                     }
                     break;
                 case MotionEvent.ACTION_UP:
-                    if (currentX <= ToolClass.SCREEN_WIDTH *0.6) {
+                    if (currentX <= SCREEN_WIDTH *0.6) {
                         handler.sendEmptyMessage(SLIPLEFT);
                     } else {
                         handler.sendEmptyMessage(SLIPRIGHT);
@@ -82,7 +89,7 @@ public class RightSlip extends FrameLayout {
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
                 case SLIPLEFT:
-                    currentX -= ToolClass.dp(36);
+                    currentX -= dp(36);
                     if (currentX <= 0) {
                         currentX = 0;
                         view.setTranslationX(0);
@@ -96,9 +103,9 @@ public class RightSlip extends FrameLayout {
                         return false;
                     }
                 case SLIPRIGHT:
-                    currentX += ToolClass.dp(36);
-                    if (currentX >=ToolClass.SCREEN_WIDTH) {
-                        view.setTranslationX(ToolClass.SCREEN_WIDTH);
+                    currentX += dp(36);
+                    if (currentX >=SCREEN_WIDTH) {
+                        view.setTranslationX(SCREEN_WIDTH);
                         invalidate();
                         activity.finish();
                     } else {
@@ -124,15 +131,20 @@ public class RightSlip extends FrameLayout {
     @Override
     protected void dispatchDraw(Canvas canvas) {
         super.dispatchDraw(canvas);
-        Shader shader = new LinearGradient(currentX - ToolClass.dp(12), 0, currentX, 0,
+        Shader shader = new LinearGradient(currentX - dp(12), 0, currentX, 0,
                 new int[]{Color.parseColor("#00666666"),
                         Color.parseColor("#22666666"),
                         Color.parseColor("#50666666"),
                         Color.parseColor("#80666666")},
                 null, Shader.TileMode.REPEAT);
         paint.setShader(shader);
-        RectF rectF = new RectF(currentX - ToolClass.dp(10), 0, currentX, ToolClass.SCREEN_HEIGHT);
+        RectF rectF = new RectF(currentX - dp(10), 0, currentX, SCREEN_HEIGHT);
         canvas.drawRect(rectF, paint);
+    }
+
+    private float dp(float px){
+        float scale = getContext().getResources().getDisplayMetrics().density;
+        return px*scale+0.5f;
     }
 }
 
