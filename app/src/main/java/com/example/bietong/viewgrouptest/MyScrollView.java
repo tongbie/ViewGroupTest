@@ -113,7 +113,6 @@ public class MyScrollView extends ViewGroup {
 //                intercepted=true;
                 break;
             case MotionEvent.ACTION_MOVE:
-
                 break;
             case MotionEvent.ACTION_UP:
                 break;
